@@ -2,6 +2,7 @@ import React from 'react';
 import {AppRegistry} from 'react-native';
 import Root from './App';
 import {ApolloClient, InMemoryCache, ApolloProvider} from '@apollo/client';
+import {FilterProvider} from './src/context/filter';
 import {name as appName} from './app.json';
 
 const client = new ApolloClient({
@@ -11,7 +12,9 @@ const client = new ApolloClient({
 
 const App = () => (
   <ApolloProvider client={client}>
-    <Root />
+    <FilterProvider>
+      <Root />
+    </FilterProvider>
   </ApolloProvider>
 );
 
