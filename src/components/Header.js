@@ -9,10 +9,11 @@ const Header = () => {
   const {user} = useFilter();
   const avatarImage = `https://picsum.photos/seed/${user}/50/50`;
   const {toggleDrawer} = useFilter();
+  const toggle = () => toggleDrawer();
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={toggleDrawer} activeOpacity={0.8}>
+      <TouchableOpacity onPress={toggle} activeOpacity={0.8}>
         <Entypo name="menu" size={size} />
       </TouchableOpacity>
       <View style={styles.avatarContainer}>

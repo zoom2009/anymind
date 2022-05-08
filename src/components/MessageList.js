@@ -41,7 +41,10 @@ const MessageList = () => {
 
   const sendMessage = () => {
     const text = messageInputRef.current.getText();
-    console.log('text:', text);
+    if (text) {
+      // not empty text will call api
+      console.log('text:', text);
+    }
   };
 
   const renderItem = props => <Message {...props} />;

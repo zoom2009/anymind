@@ -17,7 +17,7 @@ const App = () => {
   return (
     <SideMenu
       autoClosing={false}
-      isOpen={isShowDrawer || false}
+      isOpen={isShowDrawer}
       onChange={onChangeDrawer}
       menu={<FilterSidebar />}>
       <SafeAreaView style={styles.container}>
