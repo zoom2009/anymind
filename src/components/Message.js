@@ -1,12 +1,14 @@
 import {StyleSheet, Image, Text, View} from 'react-native';
 import React from 'react';
 import {getMessageDateTime} from '../functions/date';
+import {useFilter} from '../context/filter';
 
 const offset = 10;
 
-const message = ({item}) => {
-  const isSelfMessage = false;
+const Message = ({item}) => {
+  const {user} = useFilter();
   const {messageId, text, datetime, userId} = item;
+  const isSelfMessage = user === userId;
   const avatarImage = `https://picsum.photos/seed/${userId}/50/50`;
 
   return (
@@ -68,4 +70,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default message;
+export default Message;

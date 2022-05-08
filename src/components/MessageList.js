@@ -1,9 +1,11 @@
 import {FlatList, Text, StyleSheet, View} from 'react-native';
-import React from 'react';
+import React, {useRef} from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import Feather from 'react-native-vector-icons/Feather';
 import Message from './Message';
 import Button from './Button';
 import {useFilter} from '../context/filter';
+import MessageInput from './MessageInput';
 
 const mockMessageList = [
   {
@@ -28,6 +30,7 @@ const mockMessageList = [
 
 const MessageList = () => {
   const {channel} = useFilter();
+  const messageInputRef = useRef();
   const readmore = type => () => {
     if (type === 'new') {
       alert('load more new');
@@ -35,6 +38,13 @@ const MessageList = () => {
       alert('load more old');
     }
   };
+
+  const sendMessage = () => {
+    const text = messageInputRef.current.getText();
+    console.log('text:', text);
+  };
+
+  const renderItem = props => <Message {...props} />;
 
   return (
     <View style={styles.container}>
@@ -52,7 +62,8 @@ const MessageList = () => {
           bounces={false}
           keyExtractor={item => item.messageId}
           data={mockMessageList}
-          renderItem={Message}
+          renderItem={renderItem}
+          contentContainerStyle={{flexGrow: 1}}
         />
         <Button
           Icon={() => <AntDesign color="white" size={20} name="arrowdown" />}
@@ -61,6 +72,14 @@ const MessageList = () => {
           customContainerStyle={{marginVertical: 30}}
         />
       </View>
+      <View style={{flex: 1}} />
+      <MessageInput ref={messageInputRef} />
+      <Button
+        Icon={() => <Feather color="white" size={20} name="send" />}
+        text="Send Message"
+        onPress={sendMessage}
+        customContainerStyle={{marginVertical: 10, marginLeft: 5}}
+      />
     </View>
   );
 };
@@ -69,6 +88,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     alignSelf: 'center',
+    flex: 1,
   },
   titleContainer: {
     paddingVertical: 5,
