@@ -1,11 +1,11 @@
 import {StyleSheet, TouchableOpacity, Text} from 'react-native';
 import React from 'react';
 
-const Button = ({Icon, text, onClick}) => {
+const Button = ({Icon, text, onPress, customContainerStyle = {}}) => {
   return (
     <TouchableOpacity
-      style={styles.container}
-      onClick={onClick}
+      style={[styles.container, customContainerStyle]}
+      onPress={onPress}
       activeOpacity={0.8}>
       <Text style={styles.text}>{text}</Text>
       {Icon && <Icon />}
@@ -18,9 +18,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    backgroundColor: 'skyblue',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#3498db',
+    alignSelf: 'flex-start',
+    borderRadius: 4,
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+    marginRight: 5,
   },
 });
 

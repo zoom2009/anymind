@@ -1,6 +1,9 @@
-import {FlatList, StyleSheet, Text, View} from 'react-native';
+import {FlatList, Text, StyleSheet, View} from 'react-native';
 import React from 'react';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import Message from './Message';
+import Button from './Button';
+import {useFilter} from '../context/filter';
 
 const mockMessageList = [
   {
@@ -23,16 +26,63 @@ const mockMessageList = [
   }
 ];
 
-const messageList = () => {
+const MessageList = () => {
+  const {channel} = useFilter();
+  const readmore = type => () => {
+    if (type === 'new') {
+      alert('load more new');
+    } else if (type === 'old') {
+      alert('load more old');
+    }
+  };
+
   return (
-    <View>
-      <FlatList data={mockMessageList} renderItem={Message} />
+    <View style={styles.container}>
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>{channel} Channel</Text>
+      </View>
+      <View style={styles.listContainer}>
+        <Button
+          Icon={() => <AntDesign color="white" size={20} name="arrowup" />}
+          text="Read More"
+          onPress={readmore('old')}
+          customContainerStyle={{marginVertical: 15}}
+        />
+        <FlatList
+          bounces={false}
+          keyExtractor={item => item.messageId}
+          data={mockMessageList}
+          renderItem={Message}
+        />
+        <Button
+          Icon={() => <AntDesign color="white" size={20} name="arrowdown" />}
+          text="Read More"
+          onPress={readmore('new')}
+          customContainerStyle={{marginVertical: 30}}
+        />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-
+  container: {
+    width: '100%',
+    alignSelf: 'center',
+  },
+  titleContainer: {
+    paddingVertical: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  title: {
+    fontSize: 16,
+    paddingLeft: 5,
+    paddingVertical: 5,
+  },
+  listContainer: {
+    paddingHorizontal: 5,
+  },
 });
 
-export default messageList;
+export default MessageList;

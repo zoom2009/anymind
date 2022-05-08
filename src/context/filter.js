@@ -5,14 +5,24 @@ const FilterContext = createContext({
   channel: '',
   setUser: () => {},
   setChannel: () => {},
+  isShowDrawer: false,
+  toggleDrawer: () => {},
 });
 
 const FilterProvider = ({children}) => {
-  const [user, setUser] = useState('');
-  const [channel, setChannel] = useState('');
+  const [user, setUser] = useState('Joyse');
+  const [channel, setChannel] = useState('General');
+  const [isShowDrawer, setIsShowDrawer] = useState(false);
+
+  const toggleDrawer = show =>
+    setIsShowDrawer(prev => {
+      if (show !== undefined) return show;
+      return !prev;
+    });
 
   return (
-    <FilterContext.Provider value={{user, channel, setUser, setChannel}}>
+    <FilterContext.Provider
+      value={{user, channel, setUser, setChannel, isShowDrawer, toggleDrawer}}>
       {children}
     </FilterContext.Provider>
   );
