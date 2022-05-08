@@ -2,10 +2,12 @@ import {FlatList, Text, StyleSheet, View} from 'react-native';
 import React, {useRef} from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
+import useAppState from 'react-native-appstate-hook';
 import Message from './Message';
 import Button from './Button';
 import {useFilter} from '../context/filter';
 import MessageInput from './MessageInput';
+import handdleMessageInput from '../functions/handleMessageInput';
 
 const mockMessageList = [
   {
@@ -31,6 +33,13 @@ const mockMessageList = [
 const MessageList = () => {
   const {channel} = useFilter();
   const messageInputRef = useRef();
+
+  // --- handle message input ---
+  useAppState({
+    onChange: handdleMessageInput(messageInputRef),
+  });
+
+  // --- handle api ---
   const readmore = type => () => {
     if (type === 'new') {
       alert('load more new');
