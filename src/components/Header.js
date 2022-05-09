@@ -4,6 +4,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import {useFilter} from '../context/filter';
 
 const size = 36;
+const hitSlop = {left: 20, right: 20, top: 20, bottom: 20};
 
 const Header = () => {
   const {user} = useFilter();
@@ -13,7 +14,7 @@ const Header = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={toggle} activeOpacity={0.8}>
+      <TouchableOpacity hitSlop={hitSlop} onPress={toggle} activeOpacity={0.8}>
         <Entypo name="menu" size={size} />
       </TouchableOpacity>
       <View style={styles.avatarContainer}>

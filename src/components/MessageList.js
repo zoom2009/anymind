@@ -120,7 +120,7 @@ const MessageList = () => {
           Icon={() => <AntDesign color="white" size={20} name="arrowup" />}
           text="Read More"
           onPress={readmore('old')}
-          customContainerStyle={{marginVertical: 15}}
+          customContainerStyle={{marginTop: 15}}
         />
         {messages.length === 0 && (
           <Text style={styles.empty}>This Channel is empty messages.</Text>
@@ -130,14 +130,14 @@ const MessageList = () => {
           keyExtractor={item => item.messageId}
           data={messages}
           renderItem={renderItem}
-          contentContainerStyle={{flexGrow: 1}}
+          contentContainerStyle={styles.listContentContainer}
           inverted
         />
         <Button
           Icon={() => <AntDesign color="white" size={20} name="arrowdown" />}
           text="Read More"
           onPress={readmore('new')}
-          customContainerStyle={{marginTop: 30, marginBottom: 15}}
+          customContainerStyle={{marginBottom: 15}}
         />
       </View>
       <MessageInput ref={messageInputRef} />
@@ -176,6 +176,11 @@ const styles = StyleSheet.create({
     color: '#555',
     textAlign: 'center',
     marginTop: 80,
+  },
+  listContentContainer: {
+    flexGrow: 1,
+    paddingTop: 15,
+    paddingBottom: 30,
   },
 });
 
