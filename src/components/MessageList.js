@@ -1,62 +1,109 @@
 import {FlatList, Text, StyleSheet, View} from 'react-native';
-import React, {useRef} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import useAppState from 'react-native-appstate-hook';
+import * as R from 'ramda';
+import Toast from 'react-native-simple-toast';
 import Message from './Message';
 import Button from './Button';
 import {useFilter} from '../context/filter';
 import MessageInput from './MessageInput';
 import handdleMessageInput from '../functions/handleMessageInput';
+import {
+  GET_LASTEST_MESSAGES,
+  GET_READ_MORE_MESSAAGES,
+} from '../graphQL/queries';
+import client from '../graphQL/client';
+import {POST_MESSAGE} from '../graphQL/mutations';
+import getMessageForReadmore from '../functions/getMessageForReadmore';
 
-const mockMessageList = [
-  {
-    "messageId": "1508766710151162266",
-    "text": "Oh my god",
-    "datetime": "2022-05-07T10:45:32.275Z",
-    "userId": "Joyse"
-  },
-  {
-    "messageId": "7873584573998363415",
-    "text": "Wow",
-    "datetime": "2022-05-07T08:11:20.41Z",
-    "userId": "Russell"
-  },
-  {
-    "messageId": "205163017645603974",
-    "text": "Hello",
-    "datetime": "2022-05-07T03:59:03.974Z",
-    "userId": "Sam"
-  }
-];
+const renderItem = props => <Message {...props} />;
 
 const MessageList = () => {
-  const {channel} = useFilter();
+  const {channel, user} = useFilter();
   const messageInputRef = useRef();
-
-  // --- handle message input ---
-  useAppState({
-    onChange: handdleMessageInput(messageInputRef),
-  });
+  const [messages, setMessages] = useState([]);
 
   // --- handle api ---
   const readmore = type => () => {
-    if (type === 'new') {
-      alert('load more new');
-    } else if (type === 'old') {
-      alert('load more old');
-    }
+    const isOld = type === 'old';
+    const {messageId} = getMessageForReadmore({
+      isOld,
+      messages,
+    });
+    client
+      .query(
+        GET_READ_MORE_MESSAAGES({
+          channelId: channel,
+          messageId: messageId,
+          old: isOld,
+        }),
+      )
+      .then(data => {
+        let newMessages;
+        const moreMessages = R.pathOr([], ['data', 'fetchMoreMessages'], data);
+        if (moreMessages.length === 0) {
+          Toast.show('No more messages found');
+        }
+        if (isOld) {
+          newMessages = [...messages, ...moreMessages];
+        } else {
+          newMessages = [...moreMessages, ...messages];
+        }
+        // make sure not dup message
+        newMessages = R.uniqWith((a, b) => a.messageId === b.messageId)(
+          newMessages,
+        );
+        setMessages(newMessages);
+      });
   };
 
   const sendMessage = () => {
     const text = messageInputRef.current.getText();
     if (text) {
       // not empty text will call api
-      console.log('text:', text);
+      client
+        .mutate(POST_MESSAGE({channelId: channel, text, userId: user}))
+        .then(data => {
+          const postMessage = R.path(['data', 'postMessage'], data);
+          setMessages(prev => [postMessage, ...prev]);
+          messageInputRef.current.setText('');
+        })
+        .catch(error => {
+          const date = new Date();
+          const postMessage = {
+            messageId: `${date.getTime()}`,
+            text,
+            datetime: date,
+            userId: user,
+            isFail: true,
+          };
+          setMessages(prev => [postMessage, ...prev]);
+          messageInputRef.current.setText('');
+        });
     }
   };
 
-  const renderItem = props => <Message {...props} />;
+  // --- handle message input ---
+  useAppState({
+    onChange: handdleMessageInput(messageInputRef),
+  });
+
+  const fetchLastestMessages = async channelIn => {
+    client.query(GET_LASTEST_MESSAGES(channelIn)).then(data => {
+      const lastestMessages = R.pathOr(
+        [],
+        ['data', 'fetchLatestMessages'],
+        data,
+      );
+      setMessages(lastestMessages);
+    });
+  };
+
+  useEffect(() => {
+    fetchLastestMessages(channel);
+  }, [channel]);
 
   return (
     <View style={styles.container}>
@@ -70,21 +117,24 @@ const MessageList = () => {
           onPress={readmore('old')}
           customContainerStyle={{marginVertical: 15}}
         />
+        {messages.length === 0 && (
+          <Text style={styles.empty}>This Channel is empty messages.</Text>
+        )}
         <FlatList
           bounces={false}
           keyExtractor={item => item.messageId}
-          data={mockMessageList}
+          data={messages}
           renderItem={renderItem}
           contentContainerStyle={{flexGrow: 1}}
+          inverted
         />
         <Button
           Icon={() => <AntDesign color="white" size={20} name="arrowdown" />}
           text="Read More"
           onPress={readmore('new')}
-          customContainerStyle={{marginVertical: 30}}
+          customContainerStyle={{marginTop: 30, marginBottom: 15}}
         />
       </View>
-      <View style={{flex: 1}} />
       <MessageInput ref={messageInputRef} />
       <Button
         Icon={() => <Feather color="white" size={20} name="send" />}
@@ -114,6 +164,13 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: 5,
+    flex: 1,
+  },
+  empty: {
+    fontSize: 12,
+    color: '#555',
+    textAlign: 'center',
+    marginTop: 80,
   },
 });
 

@@ -1,13 +1,34 @@
 import {StyleSheet, Image, Text, View} from 'react-native';
 import React from 'react';
+import Entypo from 'react-native-vector-icons/Entypo';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {getMessageDateTime} from '../functions/date';
 import {useFilter} from '../context/filter';
 
+const statusSize = 16;
 const offset = 10;
+
+const Success = () => (
+  <View style={styles.statusWrapper}>
+    <View style={[styles.statusContainer, {backgroundColor: '#2ecc71'}]}>
+      <Entypo size={statusSize - 5} color="white" name="check" />
+    </View>
+    <Text style={styles.textStatus}>Sent</Text>
+  </View>
+);
+
+const Fail = () => (
+  <View style={styles.statusWrapper}>
+    <View style={[styles.statusContainer, {backgroundColor: '#c0392b'}]}>
+      <AntDesign size={statusSize - 5} color="white" name="exclamation" />
+    </View>
+    <Text style={styles.textStatus}>Error</Text>
+  </View>
+);
 
 const Message = ({item}) => {
   const {user} = useFilter();
-  const {messageId, text, datetime, userId} = item;
+  const {messageId, text, datetime, userId, isFail = false} = item;
   const isSelfMessage = user === userId;
   const avatarImage = `https://picsum.photos/seed/${userId}/50/50`;
 
@@ -26,6 +47,7 @@ const Message = ({item}) => {
       </View>
       <View style={styles.datetimeContainer}>
         <Text style={styles.datetime}>{getMessageDateTime(datetime)}</Text>
+        {!isFail ? <Success /> : <Fail />}
       </View>
     </View>
   );
@@ -64,9 +86,29 @@ const styles = StyleSheet.create({
   },
   datetimeContainer: {
     marginHorizontal: offset,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   datetime: {
     fontSize: 12,
+  },
+  statusWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: statusSize,
+    height: statusSize,
+    borderRadius: statusSize,
+    marginLeft: 2,
+  },
+  textStatus: {
+    fontSize: 14,
+    color: '#555',
+    marginLeft: 2,
   },
 });
 
