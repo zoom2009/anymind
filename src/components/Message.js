@@ -47,7 +47,7 @@ const Message = ({item}) => {
       </View>
       <View style={styles.datetimeContainer}>
         <Text style={styles.datetime}>{getMessageDateTime(datetime)}</Text>
-        {!isFail ? <Success /> : <Fail />}
+        {isSelfMessage ? !isFail ? <Success /> : <Fail /> : null}
       </View>
     </View>
   );

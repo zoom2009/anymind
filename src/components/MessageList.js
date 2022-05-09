@@ -1,4 +1,4 @@
-import {FlatList, Text, StyleSheet, View} from 'react-native';
+import {FlatList, Text, StyleSheet, View, Keyboard} from 'react-native';
 import React, {useRef, useState, useEffect} from 'react';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
@@ -24,6 +24,11 @@ const MessageList = () => {
   const {channel, user} = useFilter();
   const messageInputRef = useRef();
   const [messages, setMessages] = useState([]);
+
+  const clearKeyboard = () => {
+    messageInputRef.current.setText('');
+    Keyboard.dismiss();
+  };
 
   // --- handle api ---
   const readmore = type => () => {
@@ -68,7 +73,7 @@ const MessageList = () => {
         .then(data => {
           const postMessage = R.path(['data', 'postMessage'], data);
           setMessages(prev => [postMessage, ...prev]);
-          messageInputRef.current.setText('');
+          clearKeyboard();
         })
         .catch(error => {
           const date = new Date();
@@ -80,7 +85,7 @@ const MessageList = () => {
             isFail: true,
           };
           setMessages(prev => [postMessage, ...prev]);
-          messageInputRef.current.setText('');
+          clearKeyboard();
         });
     }
   };
